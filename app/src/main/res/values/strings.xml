@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SpanishFlashCardsAndroid</string>
+    <string name="tarjetas_didacticas_en_espanol">Tarjetas Didácticas en Español</string>
+    <string name="streak">Streak: %1$s</string>
+    <string name="show_answer">Show answer</string>
+    <string name="i_got_it_right">I got it right</string>
+    <string name="i_got_it_wrong">I got it wrong</string>
+    <string name="previous_card">Previous card</string>
+    <string name="next_card">Next card</string>
 </resources>

@@ -1,49 +1,49 @@
 package com.example.spanishflashcardsandroid
 
+import android.content.Context
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spanishflashcardsandroid.ui.theme.SpanishFlashCardsAndroidTheme
+import java.io.InputStream
 
 val palette = ColorPalette()
+val viewModel =  ViewModel()
+
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        palette.setDark()
+
         super.onCreate(savedInstanceState)
         setContent {
+            Init(LocalContext.current)
             SpanishFlashCardsAndroidTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -57,19 +57,56 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun MainWindowPreview() {
+    Init(LocalContext.current)
+    SpanishFlashCardsAndroidTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = palette.background,
+
+            ) {
+            MainWindow()
+        }
+    }
+}
+fun Init(context: Context) {
+
+    val translationWordsFileName = "translatablewords.json"
+    viewModel.init(context, translationWordsFileName)
+    palette.setDark()
+
+}
 @Composable
 fun MainWindow(modifier: Modifier = Modifier) {
+
+    val streak = viewModel.streak.collectAsState().value
+    val typeFront = viewModel.typeFront.collectAsState().value
+    val typeBack = viewModel.typeBack.collectAsState().value
+    val wordFront = viewModel.wordFront.collectAsState().value
+    val wordBack = viewModel.wordBack.collectAsState().value
+    val sentenceFront = viewModel.sentenceFront.collectAsState().value
+    val sentenceBack = viewModel.sentenceBack.collectAsState().value
+
+
+
+
+
+
+
     Column (verticalArrangement = Arrangement.SpaceEvenly) {
 
         Text(
-            text = "Tarjetas Didácticas en Español",
-            fontSize = 35.sp,
+            text = stringResource(R.string.tarjetas_didacticas_en_espanol),
+            fontSize = 20.sp,
             style = TextStyle(lineHeight = 35.sp),
             textAlign = TextAlign.Center,
             color = palette.onBackground,
         )
         Text(
-            text = "Streak: 2",
+            text = stringResource(R.string.streak, streak),
             fontSize = 15.sp,
             textAlign = TextAlign.End,
             color = palette.onBackground,
@@ -80,12 +117,12 @@ fun MainWindow(modifier: Modifier = Modifier) {
 
         ActionButtonRow(modifier = modifier)
         TranslationCard(
-            typeFront = "Adverb",
-            typeBack = "Adverbio",
-            wordFront = "how?",
-            wordBack = "¿cómo…?",
-            sentenceFront = "How do you know my name?",
-            sentenceBack = "¿Cómo sabes mi nombre?",
+            typeFront = typeFront,
+            typeBack = typeBack,
+            wordFront = wordFront,
+            wordBack = wordBack,
+            sentenceFront = sentenceFront,
+            sentenceBack = sentenceBack,
             modifier = Modifier.fillMaxHeight()
         )
         NavButtonRow(modifier = modifier)
@@ -145,7 +182,7 @@ fun TranslationCard(
     Column(verticalArrangement = Arrangement.SpaceAround) {
             Text(
                 text = typeBack,
-                fontSize = 12.sp,
+                fontSize = 15.sp,
                 textAlign = TextAlign.End,
                 color = palette.onSecondary,
                 modifier = Modifier
@@ -154,7 +191,7 @@ fun TranslationCard(
             )
             Text(
                 text = wordBack,
-                fontSize = 12.sp,
+                fontSize = 35.sp,
                 textAlign = TextAlign.Center,
                 color = palette.onSecondary,
                 modifier = Modifier
@@ -163,7 +200,7 @@ fun TranslationCard(
             )
             Text(
                 text = sentenceBack,
-                fontSize = 12.sp,
+                fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 color = palette.onSecondary,
                 style = TextStyle(lineHeight = 18.sp),
@@ -185,7 +222,8 @@ fun WordTranslationContent(cardType:String, modifier: Modifier = Modifier) {
 @Composable
 fun ActionButton(text: String, onClick: () -> Unit,
                  bgColor: Color, textColor: Color, modifier: Modifier = Modifier) {
-    Button(onClick = onClick,
+    Button(
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = bgColor,
             contentColor = textColor,
@@ -212,20 +250,26 @@ fun ActionButtonRow(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         ActionButton(
-            text = "Show answer",
+            text = stringResource(R.string.show_answer),
             onClick = { /*TODO*/ },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer,
         )
         ActionButton(
-            text = "I got it right",
-            onClick = { /*TODO*/ },
+            text = stringResource(R.string.i_got_it_right),
+            onClick = {
+                viewModel.incrementStreak()
+                viewModel.nextCard()
+              },
             bgColor = palette.tertiaryContainer,
             textColor = palette.onTertiaryContainer
         )
         ActionButton(
-            text = "I got it wrong",
-            onClick = { /*TODO*/ },
+            text = stringResource(R.string.i_got_it_wrong),
+            onClick = {
+                viewModel.resetStreak()
+                viewModel.nextCard()
+            },
             bgColor = palette.errorContainer,
             textColor = palette.onErrorContainer
         )
@@ -241,31 +285,16 @@ fun NavButtonRow(modifier: Modifier = Modifier) {
     ) {
 
         ActionButton(
-            text = "Previous card",
+            text = stringResource(R.string.previous_card),
             onClick = { /*TODO*/ },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer
         )
         ActionButton(
-            text = "Next card",
+            text = stringResource(R.string.next_card),
             onClick = { /*TODO*/ },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainWindowPreview() {
-    palette.setDark()
-    SpanishFlashCardsAndroidTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = palette.background,
-
-            ) {
-            MainWindow()
-        }
     }
 }
