@@ -155,6 +155,7 @@ fun TranslationCard(
             Text(
                 text = wordFront,
                 fontSize = 35.sp,
+                style = TextStyle(lineHeight = 45.sp),
                 textAlign = TextAlign.Center,
                 color = palette.onPrimaryContainer,
                 modifier = Modifier
@@ -213,11 +214,6 @@ fun TranslationCard(
     
 
 }
-@Composable
-fun WordTranslationContent(cardType:String, modifier: Modifier = Modifier) {
-
-}
-
 
 @Composable
 fun ActionButton(text: String, onClick: () -> Unit,
@@ -286,13 +282,13 @@ fun NavButtonRow(modifier: Modifier = Modifier) {
 
         ActionButton(
             text = stringResource(R.string.previous_card),
-            onClick = { /*TODO*/ },
+            onClick = { viewModel.previousCard() },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer
         )
         ActionButton(
             text = stringResource(R.string.next_card),
-            onClick = { /*TODO*/ },
+            onClick = { viewModel.nextCard() },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer
         )

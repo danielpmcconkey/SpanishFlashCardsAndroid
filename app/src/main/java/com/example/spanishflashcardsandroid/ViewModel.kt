@@ -35,7 +35,9 @@ class ViewModel() {
 
     // standard model vars
     private var streakInt: Int = 0
+    private var _currentCard: Int = 0
     private var _translationWordsList = mutableListOf<TranslatableWord>()
+    private var _translationWordsDeck = mutableListOf<TranslationCard>()
 
     // public interface
     public fun init(context: Context, translationWordsFileName: String) {
@@ -44,12 +46,9 @@ class ViewModel() {
         val jsonReader = JsonReader()
         _translationWordsList = jsonReader.getListOfTranslatableWords(context, translationWordsFileName)
 
-        _typeFront.value = "Frase"
-        _typeBack.value = "Phrase"
-        _wordFront.value = "no (lo) sé"
-        _wordBack.value = "i don’t know"
-        _sentenceFront.value = "No sé cuántos tiburones hay en el océano"
-        _sentenceBack.value = "I don't know how many sharks are in the ocean"
+        shuffleWordsDeck()
+        displayCardAtIndex(_currentCard)
+
 
 
     }
@@ -62,12 +61,46 @@ class ViewModel() {
         updateStreakLabel()
     }
     public fun nextCard() {
-        _typeFront.value = "2Frase"
-        _typeBack.value = "2Phrase"
-        _wordFront.value = "2no (lo) sé"
-        _wordBack.value = "2i don’t know"
-        _sentenceFront.value = "2No sé cuántos tiburones hay en el océano"
-        _sentenceBack.value = "2I don't know how many sharks are in the ocean"
+        if(_currentCard >= _translationWordsDeck.size - 1) _currentCard = 0
+        else _currentCard++
+        displayCardAtIndex(_currentCard)
+    }
+    public fun previousCard() {
+        if(_currentCard <= 0) _currentCard = _translationWordsDeck.size - 1
+        else _currentCard--
+        displayCardAtIndex(_currentCard)
+    }
+    public fun shuffleWordsDeck() {
+
+        val nums_list = (0 until _translationWordsList.size).toList()
+        val shuffled_nums = nums_list.shuffled()
+        for (i in shuffled_nums) {
+            val word = _translationWordsList[i]
+            if (spanishOrEnglish() == "spanish") {
+                _translationWordsDeck.add(
+                    TranslationCard(
+                        typeFront = word.spanishType,
+                        wordFront = word.spanishWord,
+                        sentenceFront = word.spanishSentence,
+                        typeBack = word.englishType,
+                        wordBack = word.englishWord,
+                        sentenceBack = word.englishSentence
+                    )  
+                )
+            }
+            else {
+                _translationWordsDeck.add(
+                    TranslationCard(
+                        typeFront = word.englishType,
+                        wordFront = word.englishWord,
+                        sentenceFront = word.englishSentence,
+                        typeBack = word.spanishType,
+                        wordBack = word.spanishWord,
+                        sentenceBack = word.spanishSentence
+                    )
+                )
+            }
+        }
     }
 
 
@@ -75,6 +108,18 @@ class ViewModel() {
     // private methods
     private fun updateStreakLabel() {
         _streak.value = streakInt.toString()
+    }
+    private fun spanishOrEnglish():String {
+        return listOf("spanish", "english").random()
+    }
+    private fun displayCardAtIndex(i: Int) {
+        val card = _translationWordsDeck[i]
+        _typeFront.value = card.typeFront
+        _typeBack.value = card.typeBack
+        _wordFront.value = card.wordFront
+        _wordBack.value = card.wordBack
+        _sentenceFront.value = card.sentenceFront
+        _sentenceBack.value = card.sentenceBack
     }
 
 
