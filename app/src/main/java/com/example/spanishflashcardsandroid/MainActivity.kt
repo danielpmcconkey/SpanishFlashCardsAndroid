@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -89,6 +90,7 @@ fun MainWindow(modifier: Modifier = Modifier) {
     val wordBack = viewModel.wordBack.collectAsState().value
     val sentenceFront = viewModel.sentenceFront.collectAsState().value
     val sentenceBack = viewModel.sentenceBack.collectAsState().value
+    val isHidden = viewModel.answerView.collectAsState().value == ("hidden")
 
 
 
@@ -123,6 +125,7 @@ fun MainWindow(modifier: Modifier = Modifier) {
             wordBack = wordBack,
             sentenceFront = sentenceFront,
             sentenceBack = sentenceBack,
+            isHidden = isHidden,
             modifier = Modifier.fillMaxHeight()
         )
         NavButtonRow(modifier = modifier)
@@ -134,8 +137,10 @@ fun TranslationCard(
     typeFront:String, typeBack:String,
     wordFront:String, wordBack:String,
     sentenceFront:String, sentenceBack:String,
+    isHidden:Boolean,
     modifier: Modifier = Modifier) {
 
+    val answerAlpha = if(isHidden) 0f else 1f
 
     Box (
         modifier = Modifier
@@ -189,6 +194,7 @@ fun TranslationCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 15.dp, vertical = 7.dp)
+                    .alpha(answerAlpha)
             )
             Text(
                 text = wordBack,
@@ -198,6 +204,7 @@ fun TranslationCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
+                    .alpha(answerAlpha)
             )
             Text(
                 text = sentenceBack,
@@ -208,6 +215,7 @@ fun TranslationCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
+                    .alpha(answerAlpha)
             )
         }
     }
@@ -247,7 +255,7 @@ fun ActionButtonRow(modifier: Modifier = Modifier) {
     ) {
         ActionButton(
             text = stringResource(R.string.show_answer),
-            onClick = { /*TODO*/ },
+            onClick = { viewModel.showAnswer() },
             bgColor = palette.secondaryContainer,
             textColor = palette.onSecondaryContainer,
         )
@@ -256,6 +264,7 @@ fun ActionButtonRow(modifier: Modifier = Modifier) {
             onClick = {
                 viewModel.incrementStreak()
                 viewModel.nextCard()
+                viewModel.hideAnswer()
               },
             bgColor = palette.tertiaryContainer,
             textColor = palette.onTertiaryContainer
@@ -265,6 +274,7 @@ fun ActionButtonRow(modifier: Modifier = Modifier) {
             onClick = {
                 viewModel.resetStreak()
                 viewModel.nextCard()
+                viewModel.hideAnswer()
             },
             bgColor = palette.errorContainer,
             textColor = palette.onErrorContainer

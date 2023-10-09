@@ -11,10 +11,13 @@ class ViewModel() {
 
 
 
-    // set up mutable state labels
+    // set up mutable state vals
     private val _streak = MutableStateFlow("")
-
     val streak = _streak.asStateFlow()
+    private val _answerView = MutableStateFlow("")
+    val answerView = _answerView.asStateFlow()
+
+
     private val _typeFront = MutableStateFlow("")
     val typeFront = _typeFront.asStateFlow()
     private val _wordFront = MutableStateFlow("")
@@ -43,14 +46,12 @@ class ViewModel() {
     public fun init(context: Context, translationWordsFileName: String) {
 
         resetStreak()
+        hideAnswer()
         val jsonReader = JsonReader()
         _translationWordsList = jsonReader.getListOfTranslatableWords(context, translationWordsFileName)
 
         shuffleWordsDeck()
         displayCardAtIndex(_currentCard)
-
-
-
     }
     public fun incrementStreak() {
         streakInt++
@@ -102,8 +103,12 @@ class ViewModel() {
             }
         }
     }
-
-
+    public fun showAnswer() {
+        _answerView.value = "shown"
+    }
+    public fun hideAnswer() {
+        _answerView.value = "hidden"
+    }
 
     // private methods
     private fun updateStreakLabel() {
@@ -121,6 +126,4 @@ class ViewModel() {
         _sentenceFront.value = card.sentenceFront
         _sentenceBack.value = card.sentenceBack
     }
-
-
 }
